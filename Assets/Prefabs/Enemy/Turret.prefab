@@ -11,12 +11,13 @@ GameObject:
   - component: {fileID: 6660493035834880938}
   - component: {fileID: 6660493035834880941}
   - component: {fileID: 6660493035834880940}
+  - component: {fileID: 6660493035834880936}
   - component: {fileID: 6660493035834880943}
   - component: {fileID: 6660493035834880942}
-  - component: {fileID: 6660493035834880936}
   - component: {fileID: 6660493035834880939}
   - component: {fileID: 6660493035834880937}
-  - component: {fileID: 4094664543401650317}
+  - component: {fileID: 529952469998034800}
+  - component: {fileID: 721789608686264178}
   m_Layer: 7
   m_Name: Turret
   m_TagString: Enemy
@@ -110,36 +111,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &6660493035834880943
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6660493035834880945}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37bd22e60ba733942b6c9771651ca15a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _bullet: {fileID: 3607189635610317705, guid: 2035b2f924c17bb4e88a34595a843c0f, type: 3}
-  _bulletSpeed: 3.5
-  _shootPoint: {fileID: 6660493037117895738}
-  _damage: 30
---- !u!114 &6660493035834880942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6660493035834880945}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 776f688fd4f1be64fbe1f95fcc907a12, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _timeBetweenShots: 1.8
-  _dataRefreshDelay: 0.25
 --- !u!70 &6660493035834880936
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -156,6 +127,39 @@ CapsuleCollider2D:
   m_Offset: {x: -0.01, y: -0.04}
   m_Size: {x: 0.32, y: 0.51}
   m_Direction: 0
+--- !u!114 &6660493035834880943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6660493035834880945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37bd22e60ba733942b6c9771651ca15a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bullet: {fileID: -646259403642983878, guid: 2035b2f924c17bb4e88a34595a843c0f, type: 3}
+  bulletSpeed: 3.5
+  shootPoint: {fileID: 6660493037117895738}
+  damage: 30
+--- !u!114 &6660493035834880942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6660493035834880945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 776f688fd4f1be64fbe1f95fcc907a12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerFinder: {fileID: 529952469998034800}
+  shooter: {fileID: 6660493035834880943}
+  timeBetweenShots: 1.5
+  dataRefreshDelay: 0.25
+  baseAnim: {fileID: 721789608686264178}
 --- !u!114 &6660493035834880939
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,9 +185,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9f3071a6b02aa4459c3627eeb805a8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _score: 120
-  _timeToDestroy: 1
---- !u!114 &4094664543401650317
+  health: {fileID: 6660493035834880939}
+  baseAnim: {fileID: 721789608686264178}
+  score: 120
+  timeToDestroy: 1
+  col: {fileID: 6660493035834880936}
+  baseEnemy: {fileID: 6660493035834880942}
+--- !u!114 &529952469998034800
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -192,14 +200,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 6660493035834880945}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 103d8e32d59929f42af6d62082a761d8, type: 3}
+  m_Script: {fileID: 11500000, guid: a010cc2a80dac3c42b0e79f181da4086, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _player: {fileID: 0}
-  _attackRange: 2.5
-  _mask:
+  attackRange: 2.5
+  checkDelay: 0.16
+  playerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  checkForObstacleMask:
     serializedVersion: 2
     m_Bits: 72
+--- !u!114 &721789608686264178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6660493035834880945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a46439bdf38f10649a24ccf7a66e8e5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  anim: {fileID: 6660493035834880940}
 --- !u!1 &6660493036594741258
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,57 +1,54 @@
 using UnityEngine;
 using System.Collections;
 
-public class Turret : MonoBehaviour
+public class Turret : BaseEnemy
 {
-    [SerializeField] private float _timeBetweenShots;
-    [SerializeField] private float _dataRefreshDelay;
-    private EnemyHelper _helper;
-    private bool _isAlive = true;
-    private float _nextTimeToShot = 0;
-    private bool _isAttack = false;
-    private Animator _animator;
-    private CharacterHealth _health;
+    [SerializeField] private float dataRefreshDelay;
+    [SerializeField] private BaseAnim baseAnim;
 
-    private void Awake()
+    private bool isAttack;
+    private bool coroutineIsActive;
+
+    protected override void Awake()
     {
-        _helper = GetComponent<EnemyHelper>();
-        _health = GetComponent<CharacterHealth>();
-        _health.DeathEvent += TurretIsDead;
-        _animator = GetComponent<Animator>();
-        _helper.ActivateAttackState += AttackOn;
-        _helper.ActivateIdleState += AttackOff;
-        StartCoroutine(TurretMainCoroutine());
+        base.Awake();
+        coroutineIsActive = false;
+        isAttack = false;
     }
 
-    private void AttackOn()
+    protected override void AttackModeOff()
     {
-        _isAttack = true;
+        isAttack = false;
     }
 
-    private void AttackOff()
+    protected override void AttackModeOn()
     {
-        _isAttack = false;
-    }
-
-    private void TurretIsDead()
-    {
-        _isAlive = false;
-    }
-
-    private IEnumerator TurretMainCoroutine()
-    {
-        while (_isAlive)
+        isAttack = true;
+        if (!coroutineIsActive)
         {
-            yield return new WaitForSeconds(_dataRefreshDelay);
-            _helper.CheckPlayer();
-            if (_isAttack)
-            {
-                if (Time.time > _nextTimeToShot)
-                {
-                    _nextTimeToShot = Time.time + _timeBetweenShots;
-                    _animator.SetTrigger("IsAttack");
-                }
-            }
+            StartCoroutine(TurretAttack());
         }
+    }
+
+    protected override void BaseAttack()
+    {
+        baseAnim.PlayAttack();
+    }
+
+    public override void EnemyIsDead()
+    {
+        isAttack = false;
+        base.EnemyIsDead();
+    }
+
+    private IEnumerator TurretAttack()
+    {
+        coroutineIsActive = true;
+        while (isAttack)
+        {
+            yield return new WaitForSeconds(dataRefreshDelay);
+            CheckAttackTiming();
+        }
+        coroutineIsActive = false;
     }
 }

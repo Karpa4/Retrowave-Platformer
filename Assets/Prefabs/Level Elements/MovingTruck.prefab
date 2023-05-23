@@ -99,6 +99,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 653ab7732d6ef714696c8999737dead7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _sprite: {fileID: 1863208368458756942}
   _minX: -14
   _maxX: -4
   _speed: 2.2

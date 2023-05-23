@@ -1,71 +1,61 @@
 ﻿using UnityEngine;
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : BaseEnemy
 {
-    [SerializeField] private float _timeBetweenShots;
-    [SerializeField] private float _moveSpeed;
-    [SerializeField] private float _timeToRevert;
-    private EnemyHelper _helper;
-    private Animator _anim;
-    private Rigidbody2D _rigidBody;
-    private float _nextTimeToShot = 0;
-    private float _currentTimeToRevert;
-    private Quaternion _previousRotation;
-    private CharacterHealth _health;
+    [SerializeField] private BaseAnim baseAnim;
+    [SerializeField] private Rigidbody2D rigidBody;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float timeToRevert;
+
+    private float currentTimeToRevert;
+    private Quaternion previousRotation;
 
     private const float IDLE_STATE = 0;
     private const float WALK_STATE = 1;
     private const float REVERT_STATE = 2;
     private const float ATTACK_STATE = 3;
-    private float _currentState;
-    private float _previousState;
+    private float currentState;
+    private float previousState;
 
-    private void Awake()
+    protected override void Awake()
     {
-        _helper = GetComponent<EnemyHelper>();
-        _helper.ActivateAttackState += AttackOn;
-        _helper.ActivateIdleState += AttackOff;
-        _health = GetComponent<CharacterHealth>();
-        _health.DeathEvent += EnemyIsDead;
-        _moveSpeed = -_moveSpeed;
-        _currentState = WALK_STATE;
-        _currentTimeToRevert = 0;
-        _previousState = 0;
-        _anim = GetComponent<Animator>();
-        _rigidBody = GetComponent<Rigidbody2D>();
+        base.Awake();
+        currentState = WALK_STATE;
+        currentTimeToRevert = 0;
+        previousState = 0;
+        moveSpeed = -moveSpeed;
     }
 
-    private void AttackOff()
+    protected override void AttackModeOff()
     {
-        _currentState = _previousState;
-        transform.rotation = _previousRotation;
+        currentState = previousState;
+        transform.rotation = previousRotation;
     }
 
-    private void AttackOn()
+    protected override void AttackModeOn()
     {
-        _previousState = _currentState;
-        _previousRotation = transform.rotation;
-        _currentState = ATTACK_STATE;
-        _rigidBody.velocity = Vector2.zero;
+        previousState = currentState;
+        previousRotation = transform.rotation;
+        currentState = ATTACK_STATE;
+        rigidBody.velocity = Vector2.zero;
     }
 
     private void Update()
     {
-        _helper.CheckPlayer();
-        if (_currentTimeToRevert >= _timeToRevert)
+        if (currentTimeToRevert >= timeToRevert)
         {
-            _currentTimeToRevert = 0;
-            _currentState = REVERT_STATE;
+            currentTimeToRevert = 0;
+            currentState = REVERT_STATE;
         }
 
-        switch (_currentState)
+        switch (currentState)
         {
             case IDLE_STATE:
-                _currentTimeToRevert += Time.deltaTime;
+                currentTimeToRevert += Time.deltaTime;
                 break;
 
             case WALK_STATE:
-                _rigidBody.velocity = Vector2.right * _moveSpeed;
+                rigidBody.velocity = Vector2.right * moveSpeed;
                 break;
 
             case REVERT_STATE:
@@ -77,34 +67,30 @@ public class EnemyController : MonoBehaviour
                 {
                     transform.rotation = new Quaternion(0, 1, 0, 0);
                 }
-                _moveSpeed *= -1;
-                _currentState = WALK_STATE;
+                moveSpeed *= -1;
+                currentState = WALK_STATE;
                 break;
 
             case ATTACK_STATE:
-                if (Time.time > _nextTimeToShot)
-                {
-                    _helper.EnemyShoot();
-                    _nextTimeToShot = Time.time + _timeBetweenShots;
-                }
+                CheckAttackTiming();
                 break;
         }
-        _anim.SetFloat("Velocity", _rigidBody.velocity.magnitude);
+        baseAnim.SetVelocity(rigidBody.velocity.magnitude);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("EnemyStopper"))
         {
-            _currentState = IDLE_STATE;
+            currentState = IDLE_STATE;
         }
-        
     }
 
-    private void EnemyIsDead()
+    public override void EnemyIsDead()
     {
-        _rigidBody.velocity = Vector2.zero;
-        _rigidBody.constraints = RigidbodyConstraints2D.FreezeAll;
+        rigidBody.velocity = Vector2.zero;
+        rigidBody.constraints = RigidbodyConstraints2D.FreezeAll;
         enabled = false;
+        base.EnemyIsDead();
     }
 }

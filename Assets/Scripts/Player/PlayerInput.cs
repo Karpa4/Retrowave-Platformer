@@ -1,71 +1,54 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
+using System;
 
-[RequireComponent(typeof(Animator))]
-[RequireComponent(typeof(PlayerMovement))]
-public class PlayerInput : MonoBehaviour
+public class PlayerInput : MonoBehaviour, IPlayerInput
 {
-    public bool OnPauseButton = false;
-    [SerializeField] private bool _isControlled;
-    [SerializeField] private float _timeBetweenShots;
-    private float _nextTimeToShot = 0;
-    private PlayerMovement _playerMovement;
-    private float _horizontal = 0;
-    private Animator _animator;
-    private bool _rightMove = true;
+    [SerializeField] private bool isControlled;
+    private float horizontal = 0;
+    private bool rightMove = true;
 
-    private void Awake()
-    {
-        _playerMovement = GetComponent<PlayerMovement>();
-        _animator = GetComponent<Animator>();
-    }
+    public float Horizontal => horizontal;
+    public event Action AttackEvent;
+    public event Action JumpEvent;
 
     void Update()
     {
-        if (_isControlled)
+        if (isControlled)
         {
-            _horizontal = Input.GetAxis(GlobalStringVars.HORIZONTAL_AXIS);
-            if (Input.GetButtonDown(GlobalStringVars.JUMP))
+            horizontal = Input.GetAxis(GlobalConstants.HORIZONTAL_AXIS);
+            if (Input.GetButtonDown(GlobalConstants.Jump))
             {
-                _playerMovement.Jump();
+                JumpEvent?.Invoke();
             }
 
-            if (_horizontal > 0 && _rightMove == false)
+            if (horizontal > 0 && rightMove == false)
             {
                 transform.rotation = Quaternion.Euler(0, 0, 0);
-                _rightMove = true;
+                rightMove = true;
             }
-            if (_horizontal < 0 && _rightMove == true)
+            if (horizontal < 0 && rightMove == true)
             {
                 transform.rotation = Quaternion.Euler(0, 180, 0);
-                _rightMove = false;
+                rightMove = false;
             }
 
-            if (Input.GetButtonDown(GlobalStringVars.FIRE_1) && !OnPauseButton)
+            if (Input.GetButtonDown(GlobalConstants.Fire_1))
             {
-                if (Time.time > _nextTimeToShot)
+                if (EventSystem.current.IsPointerOverGameObject())
                 {
-                    _nextTimeToShot = Time.time + _timeBetweenShots;
-                    _animator.SetBool("IsAttack", true);
+                    return;
                 }
+                AttackEvent?.Invoke();
             }
-
-            _animator.SetFloat("Velocity", Mathf.Abs(_horizontal));
-        }
-    }
-
-    private void FixedUpdate()
-    {
-        if (_isControlled)
-        {
-            _playerMovement.PlayerMove(_horizontal);
         }
     }
 
     /// <summary>
     /// Отключение контроля у игрока
     /// </summary>
-    public void SetOffControl()
+    public void SwitchControl(bool switcher)
     {
-        _isControlled = false;
+        isControlled = switcher;
     }
 }

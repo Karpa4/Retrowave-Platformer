@@ -1,73 +1,64 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 [RequireComponent(typeof(Rigidbody2D))] 
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Movement vars")]
-    [SerializeField] private float _speed;
-    [SerializeField] private float _jumpForce;
+    [SerializeField] private float speed;
+    [SerializeField] private float jumpForce;
+    [SerializeField] private float jumpOffset;
+    [SerializeField] private AnimationCurve moveCurve;
+    [SerializeField] private Transform groundColTransform;
+    [SerializeField] private LayerMask groundMask;
+    [SerializeField] private PlayerInput playerInput;
+    [SerializeField] private PlayerAnim playerAnim;
+    [SerializeField] private Rigidbody2D rigidBody;
 
-    [Header("Settings")]
-    [SerializeField] private Transform _groundColTransform;
-    [SerializeField] private LayerMask _groundMask;
-    [SerializeField] private AnimationCurve _curve;
-    [SerializeField] private float _jumpOffset;
+    private bool isGround = false;
+    private bool secondJumpAvailable = true;
 
-    private bool _isGround = false;
-    private bool _secondJumpAvailable = true;
-    private Rigidbody2D _rigidBody;
-    private Animator _animator;
-
-    private void Awake()
+    private void Start()
     {
-        _animator = GetComponent<Animator>();
-        _rigidBody = GetComponent<Rigidbody2D>();
+        playerInput.JumpEvent += Jump;
     }
 
     private void FixedUpdate()
     {
-        _isGround = Physics2D.OverlapCircle(_groundColTransform.position, _jumpOffset, _groundMask);
-        if (_isGround && !_secondJumpAvailable)
+        isGround = Physics2D.OverlapCircle(groundColTransform.position, jumpOffset, groundMask);
+        if (isGround && !secondJumpAvailable)
         {
-            _secondJumpAvailable = true;
+            secondJumpAvailable = true;
         }
-        _animator.SetBool("IsGround", _isGround);
+        playerAnim.SwitchGround(isGround);
+        PlayerMove();
     }
 
-    public void PlayerMove(float direction)
+    public void PlayerMove()
     {
-        if (Mathf.Abs(direction) > 0.01f)
+        float abs = Mathf.Abs(playerInput.Horizontal);
+        if (abs > 0.01f)
         {
-            _rigidBody.velocity = new Vector2(_curve.Evaluate(direction) * _speed, _rigidBody.velocity.y);
+            rigidBody.velocity = new Vector2(moveCurve.Evaluate(playerInput.Horizontal) * speed, rigidBody.velocity.y);
         }
-    }
-
-    /// <summary>
-    /// Увеличение скорости после поднятия бонуса
-    /// </summary>
-    /// <param name="newSpeed">Новая скорость</param>
-    /// <param name="time">Длительность бонуса</param>
-    /// <returns></returns>
-    public IEnumerator ChangeSpeed(float newSpeed, float time)
-    {
-        float temp = _speed;
-        _speed = newSpeed;
-        yield return new WaitForSeconds(time);
-        _speed = temp;
+        playerAnim.SetVelocity(abs);
     }
 
     public void Jump()
     {
-        if (_isGround)
+        if (isGround)
         {
-            _secondJumpAvailable = true;
-            _rigidBody.velocity = new Vector2(_rigidBody.velocity.x, _jumpForce);
+            secondJumpAvailable = true;
+            rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
         }
-        else if (_secondJumpAvailable)
+        else if (secondJumpAvailable)
         {
-            _secondJumpAvailable = false;
-            _rigidBody.velocity = new Vector2(_rigidBody.velocity.x, _jumpForce);
+            secondJumpAvailable = false;
+            rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
         }
+    }
+
+    public void Cleanup()
+    {
+        rigidBody.constraints = RigidbodyConstraints2D.FreezePositionX;
+        playerInput.JumpEvent -= Jump;
     }
 }

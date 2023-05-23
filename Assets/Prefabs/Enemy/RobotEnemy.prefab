@@ -12,12 +12,13 @@ GameObject:
   - component: {fileID: 5511462524667674393}
   - component: {fileID: 5511462524667674394}
   - component: {fileID: 5511462524667674389}
-  - component: {fileID: 5511462524667674390}
   - component: {fileID: 5511462524667674391}
+  - component: {fileID: 5511462524667674390}
   - component: {fileID: 5511462524667674388}
   - component: {fileID: 5511462524667674386}
   - component: {fileID: 5511462524667674387}
-  - component: {fileID: 6084821825171316484}
+  - component: {fileID: 6383297156337873005}
+  - component: {fileID: 4877982426004290213}
   m_Layer: 7
   m_Name: Robot
   m_TagString: Untagged
@@ -131,21 +132,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &5511462524667674390
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5511462524667674395}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4d29674549fd3941a3d864047d63453, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _timeBetweenShots: 1
-  _moveSpeed: 2
-  _timeToRevert: 2
 --- !u!70 &5511462524667674391
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -162,6 +148,25 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: -0.04}
   m_Size: {x: 0.3, y: 0.55}
   m_Direction: 0
+--- !u!114 &5511462524667674390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5511462524667674395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4d29674549fd3941a3d864047d63453, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerFinder: {fileID: 6383297156337873005}
+  shooter: {fileID: 5511462524667674388}
+  timeBetweenShots: 1
+  baseAnim: {fileID: 4877982426004290213}
+  rigidBody: {fileID: 5511462524667674389}
+  moveSpeed: 2
+  timeToRevert: 2
 --- !u!114 &5511462524667674388
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,10 +179,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37bd22e60ba733942b6c9771651ca15a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bullet: {fileID: 3607189635610317705, guid: 2035b2f924c17bb4e88a34595a843c0f, type: 3}
-  _bulletSpeed: 3
-  _shootPoint: {fileID: 5511462524937165759}
-  _damage: 20
+  bullet: {fileID: -646259403642983878, guid: 2035b2f924c17bb4e88a34595a843c0f, type: 3}
+  bulletSpeed: 3
+  shootPoint: {fileID: 5511462524937165759}
+  damage: 20
 --- !u!114 &5511462524667674386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -203,9 +208,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9f3071a6b02aa4459c3627eeb805a8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _score: 160
-  _timeToDestroy: 1
---- !u!114 &6084821825171316484
+  health: {fileID: 5511462524667674386}
+  baseAnim: {fileID: 4877982426004290213}
+  score: 160
+  timeToDestroy: 1
+  col: {fileID: 5511462524667674391}
+  baseEnemy: {fileID: 5511462524667674390}
+--- !u!114 &6383297156337873005
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -214,14 +223,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 5511462524667674395}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 103d8e32d59929f42af6d62082a761d8, type: 3}
+  m_Script: {fileID: 11500000, guid: a010cc2a80dac3c42b0e79f181da4086, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _player: {fileID: 0}
-  _attackRange: 2.5
-  _mask:
+  attackRange: 3
+  checkDelay: 0.15
+  playerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  checkForObstacleMask:
     serializedVersion: 2
     m_Bits: 72
+--- !u!114 &4877982426004290213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5511462524667674395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a46439bdf38f10649a24ccf7a66e8e5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  anim: {fileID: 5511462524667674394}
 --- !u!1 &5511462524854836798
 GameObject:
   m_ObjectHideFlags: 0

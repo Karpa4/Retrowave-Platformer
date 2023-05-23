@@ -1,33 +1,36 @@
 using System.Collections;
 using UnityEngine;
+using Zenject;
 
-public class EnemyDeath : MonoBehaviour
+public class EnemyDeath : BaseDeath, IScore
 {
-    [SerializeField] private int _score;
-    [SerializeField] private float _timeToDestroy;
-    private CharacterHealth _health;
-    private Animator _animator;
-    private Collider2D _col;
+    [SerializeField] private int score;
+    [SerializeField] private float timeToDestroy;
+    [SerializeField] private Collider2D col;
+    [SerializeField] private BaseEnemy baseEnemy;
 
-    private void Awake()
+    private PlayerScore playerScore;
+
+    public int Score { get => score; set => score = value; }
+
+    [Inject]
+    public void Construct(PlayerScore playerScore)
     {
-        _health = GetComponent<CharacterHealth>();
-        _health.DeathEvent += EnemyIsDead;
-        _animator = GetComponent<Animator>();
-        _col = GetComponent<Collider2D>();
+        this.playerScore = playerScore;
     }
 
-    private void EnemyIsDead()
+    protected override void IsDead()
     {
-        GameStats._gameStats.ChangeScore(_score);
-        _animator.SetBool("IsDead", true);
-        _col.enabled = false;
+        baseEnemy.EnemyIsDead();
+        playerScore.AddScore(score);
+        col.enabled = false;
         StartCoroutine(DelayDestroy());
+        base.IsDead();
     }
 
     private IEnumerator DelayDestroy()
     {
-        yield return new WaitForSeconds(_timeToDestroy);
+        yield return new WaitForSeconds(timeToDestroy);
         Destroy(gameObject);
     }
 }

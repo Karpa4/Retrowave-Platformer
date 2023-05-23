@@ -2,67 +2,60 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.AI;
 
-public class DronController : MonoBehaviour
+public class DronController : BaseEnemy
 {
-    [SerializeField] private float _timeBetweenShots;
-    [SerializeField] private float _dataRefreshDelay;
-    private EnemyHelper _helper;
-    private NavMeshAgent _agent;
-    private bool _isAlive = true;
-    private float _nextTimeToShot = 0;
-    private bool _isAttack = false;
-    private CharacterHealth _health;
+    [SerializeField] private float dataRefreshDelay;
+    [SerializeField] private NavMeshAgent agent;
+    [SerializeField] private Transform startPointToMove;
 
-    private void Awake()
+    private bool isAlive;
+    private bool isAttack;
+
+    protected override void Awake()
     {
-        _helper = GetComponent<EnemyHelper>();
-        _helper.ActivateAttackState += AttackOn;
-        _helper.ActivateIdleState += AttackOff;
-        _helper.CheckRotation();
-        _agent = GetComponent<NavMeshAgent>();
-        _agent.updateRotation = false;
-        _agent.updateUpAxis = false;
-        _health = GetComponent<CharacterHealth>();
-        _health.DeathEvent += DronIsDead;
+        base.Awake();
+
+        isAlive = true;
+        isAttack = false;
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
+
+        agent.SetDestination(startPointToMove.position);
+        Finder.CheckRotation(startPointToMove);
         StartCoroutine(DronMainCoroutine());
     }
 
-    private void AttackOn()
+    protected override void AttackModeOn()
     {
-        _agent.isStopped = true;
-        _isAttack = true;
+        agent.isStopped = true;
+        isAttack = true;
     }
 
-    private void AttackOff()
+    protected override void AttackModeOff()
     {
-        _agent.isStopped = false;
-        _isAttack = false;
+        agent.isStopped = false;
+        isAttack = false;
     }
 
-    private void DronIsDead()
+    public override void EnemyIsDead()
     {
-        _isAlive = false;
+        isAlive = false;
+        base.EnemyIsDead();
     }
 
     private IEnumerator DronMainCoroutine()
     {
-        while (_isAlive)
+        while (isAlive)
         {
-            if (!_isAttack)
+            if (!isAttack && CurrentTarget != null)
             {
-                _agent.SetDestination(_helper.GetPlayerPosition());
-                _helper.CheckRotation();
+                agent.SetDestination(CurrentTarget.position);
             }
 
-            yield return new WaitForSeconds(_dataRefreshDelay);
-            _helper.CheckPlayer();
-            if (_isAttack)
+            yield return new WaitForSeconds(dataRefreshDelay);
+            if (isAttack)
             {
-                if (Time.time > _nextTimeToShot)
-                {
-                    _nextTimeToShot = Time.time + _timeBetweenShots;
-                    _helper.EnemyShoot();
-                }
+                CheckAttackTiming();
             }
         }
     }
